@@ -1,6 +1,7 @@
 package pl.projectfiveg.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class TaskDTO {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderEnd;
+    @JsonProperty("device")
     private DeviceGetDTO deviceGetDTO;
 
     public TaskDTO(Task task , String fileUrl) {
