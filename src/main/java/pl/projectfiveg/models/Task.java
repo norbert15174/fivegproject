@@ -11,7 +11,6 @@ import pl.projectfiveg.models.enums.TaskStatus;
 import pl.projectfiveg.models.enums.TaskType;
 
 import javax.persistence.*;
-import java.sql.Blob;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,8 +26,8 @@ public class Task {
     private TaskType taskType;
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
-    @Lob
-    private Blob file;
+    @OneToOne(mappedBy = "task", cascade = CascadeType.ALL)
+    private File file;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderStart;

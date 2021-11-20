@@ -3,6 +3,7 @@ package pl.projectfiveg.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pl.projectfiveg.DTO.DeviceDTO;
 import pl.projectfiveg.DTO.TaskDTO;
 import pl.projectfiveg.services.interfaces.IDeviceService;
@@ -35,6 +36,14 @@ public class DeviceController {
     @GetMapping("/tasks")
     public ResponseEntity <Set <TaskDTO>> getTasks(Principal principal , @RequestHeader(name = "device-uuid") String uuid) {
         return taskService.getTasksToExecute(principal , uuid);
+    }
+
+    @PostMapping("/tasks/{taskId}/upload")
+    public ResponseEntity <TaskDTO> upload(Principal principal ,
+                                             @RequestHeader(name = "device-uuid") String uuid ,
+                                             @PathVariable("taskId") Long taskId ,
+                                             MultipartFile file) {
+        return taskService.uploadFile(principal , uuid , taskId , file);
     }
 
 }

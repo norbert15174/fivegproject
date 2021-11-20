@@ -30,6 +30,7 @@ import pl.projectfiveg.services.update.interfaces.IDeviceUpdateService;
 import pl.projectfiveg.validators.AuthValidator;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 public class UserService implements IUserService, UserDetailsService, ITokenPrivateKey, IUserServiceInterface {

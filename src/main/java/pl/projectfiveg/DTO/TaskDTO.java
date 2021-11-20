@@ -46,6 +46,6 @@ public class TaskDTO {
         this.orderStart = task.getOrderStart();
         this.orderEnd = task.getOrderEnd();
         this.deviceGetDTO = new DeviceGetDTO(task.getDevice());
-        this.fileUrl = task.getFile() != null ? "/tasks/file?taskId=" + task.getId() : null;
+        this.fileUrl = task.getFile() != null ? String.format("/tasks/%d/download" , task.getId()) : null;
     }
 }

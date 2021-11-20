@@ -1,6 +1,7 @@
 package pl.projectfiveg.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.projectfiveg.DTO.OrderJobDTO;
@@ -28,8 +29,12 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List <TaskDTO>> getTasks(Principal principal, TaskSearchCriteria taskSearchCriteria){
-        return taskService.getTasks(principal, taskSearchCriteria);
+    public ResponseEntity <List <TaskDTO>> getTasks(Principal principal , TaskSearchCriteria taskSearchCriteria) {
+        return taskService.getTasks(principal , taskSearchCriteria);
     }
 
+    @GetMapping("/{taskId}/download")
+    public ResponseEntity <Resource> downloadFile(Principal principal , @PathVariable("taskId") Long taskId) {
+        return taskService.getFile(principal , taskId);
+    }
 }

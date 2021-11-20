@@ -27,6 +27,12 @@ public class TaskUpdateService implements ITaskUpdateService {
         return create(TaskCreator.createTask(job , device , user));
     }
 
+    @Transactional
+    @Override
+    public Task update(Task task) {
+        return taskRepository.save(task);
+    }
+
     private Task create(Task task) {
         return taskRepository.save(task);
     }

@@ -1,16 +1,24 @@
 package pl.projectfiveg.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pl.projectfiveg.DTO.OrderJobDTO;
 import pl.projectfiveg.DTO.TaskDTO;
+import pl.projectfiveg.exceptions.FileNotFoundException;
 import pl.projectfiveg.models.Device;
+import pl.projectfiveg.models.File;
 import pl.projectfiveg.models.Task;
 import pl.projectfiveg.models.User;
 import pl.projectfiveg.models.enums.CurrentStatus;
+import pl.projectfiveg.models.enums.TaskStatus;
 import pl.projectfiveg.services.interfaces.ITaskService;
 import pl.projectfiveg.services.interfaces.IUserService;
 import pl.projectfiveg.services.query.interfaces.IDeviceQueryService;
@@ -21,6 +29,7 @@ import pl.projectfiveg.specification.criteria.TaskSearchCriteria;
 import pl.projectfiveg.validators.TaskValidator;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -84,11 +93,47 @@ public class TaskService implements ITaskService {
         try {
             user = userService.getUserByLogin(principal.getName());
             device = deviceQueryService.getDeviceByUuid(deviceUuid);
-            taskValidator.validateDeviceTask(device, user);
+            taskValidator.validateDeviceTask(device , user);
         } catch ( Exception e ) {
             return new ResponseEntity(e.getMessage() , HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity (taskQueryService.getTasksByDeviceUuid(deviceUuid), HttpStatus.OK);
+        return new ResponseEntity(taskQueryService.getTasksByDeviceUuid(deviceUuid) , HttpStatus.OK);
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity <TaskDTO> uploadFile(Principal principal , String uuid , Long taskId , MultipartFile file) {
+        User user;
+        Device device;
+        Task task;
+        File fileToSave;
+        try {
+            user = userService.getUserByLogin(principal.getName());
+            device = deviceQueryService.getDeviceByUuid(uuid);
+            task = taskQueryService.getTaskById(taskId);
+            taskValidator.validateUploadFile(user , device , task);
+            fileToSave = new File(file , task);
+        } catch ( Exception e ) {
+            return new ResponseEntity(e.getMessage() , HttpStatus.BAD_REQUEST);
+        }
+        task.setFile(fileToSave);
+        task.setOrderEnd(LocalDateTime.now());
+        task.setStatus(TaskStatus.FINISHED);
+        return new ResponseEntity(new TaskDTO(taskUpdateService.update(task)) , HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity <Resource> getFile(Principal principal , Long taskId) {
+        File file;
+        try {
+            file = taskQueryService.getFileByTaskId(taskId);
+        } catch ( FileNotFoundException ex ) {
+            return new ResponseEntity(ex.getMessage() , HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(file.getType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION , "attachment; filename=\"" + file.getName() + "\"")
+                .body(new ByteArrayResource(file.getData()));
     }
 
 }

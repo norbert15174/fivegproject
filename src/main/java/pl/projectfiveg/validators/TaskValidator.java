@@ -4,9 +4,11 @@ import org.springframework.stereotype.Component;
 import pl.projectfiveg.DTO.OrderJobDTO;
 import pl.projectfiveg.exceptions.ValidationProjectException;
 import pl.projectfiveg.models.Device;
+import pl.projectfiveg.models.Task;
 import pl.projectfiveg.models.User;
 import pl.projectfiveg.models.enums.CurrentStatus;
 import pl.projectfiveg.models.enums.DeviceType;
+import pl.projectfiveg.models.enums.TaskStatus;
 
 @Component
 public class TaskValidator {
@@ -26,6 +28,18 @@ public class TaskValidator {
         }
         if ( !device.getDeviceType().equals(user.getDeviceType()) ) {
             throw new ValidationProjectException("If you want to get device '" + device.getUuid() + "' tasks, you have to log in as device user: " + device.getDeviceType());
+        }
+    }
+
+    public void validateUploadFile(User user , Device device , Task task) {
+        if ( task.getStatus().equals(TaskStatus.FINISHED) ) {
+            throw new ValidationProjectException("You cannot upload file to finished task");
+        }
+        if ( !device.getDeviceType().equals(user.getDeviceType()) ) {
+            throw new ValidationProjectException("If you want to get device '" + device.getUuid() + "' tasks, you have to log in as device user: " + device.getDeviceType());
+        }
+        if ( !task.getDevice().getUuid().equals(device.getUuid()) ) {
+            throw new ValidationProjectException("This task is not linked to given UUID device");
         }
     }
 }

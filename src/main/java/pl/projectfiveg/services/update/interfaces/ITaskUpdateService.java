@@ -7,4 +7,6 @@ import pl.projectfiveg.models.User;
 
 public interface ITaskUpdateService {
     Task createTask(OrderJobDTO job , Device device , User user);
+
+    Task update(Task task);
 }

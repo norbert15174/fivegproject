@@ -33,8 +33,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().authorizeRequests()
                 .antMatchers("/client").authenticated()
                 .antMatchers("/device").hasAnyRole("WEB_CLIENT" , "ADMIN")
-                .antMatchers("/device/tasks").hasAnyRole("LINUX", "IOS", "ANDROID")
+                .antMatchers("/device/tasks").hasAnyRole("LINUX" , "IOS" , "ANDROID")
+                .antMatchers("/device/tasks/{taskId}/upload").hasAnyRole("LINUX" , "IOS" , "ANDROID")
                 .antMatchers("/tasks").hasAnyRole("WEB_CLIENT" , "ADMIN")
+                .antMatchers("/tasks/{taskId}/download").hasAnyRole("WEB_CLIENT" , "ADMIN")
                 .and()
                 .addFilterBefore(new JwtFilter(userService , tokenPrivateKey) , UsernamePasswordAuthenticationFilter.class);
         http.csrf().disable();
