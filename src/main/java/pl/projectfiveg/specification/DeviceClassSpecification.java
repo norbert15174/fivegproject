@@ -15,11 +15,11 @@ import static org.springframework.data.jpa.domain.Specification.where;
 public class DeviceClassSpecification extends BaseSpecification <Device, DeviceSearchCriteria> {
     @Override
     public Specification <Device> getFilter(DeviceSearchCriteria request) {
-        return where(uuid(request.getUuid())
-                .and(deviceType(request.getDeviceTypes())
-                        .and(deviceStatuses(request.getDeviceStatuses())
-                                .and(name(request.getName())
-                                        .and(order(request.getSortBy()))))));
+        return where(uuid(request.getUuid()))
+                .and(deviceType(request.getDeviceTypes()))
+                .and(deviceStatuses(request.getDeviceStatuses()))
+                .and(name(request.getName()))
+                .and(order(request.getSortBy()));
     }
 
     private Specification <Device> uuid(String uuid) {

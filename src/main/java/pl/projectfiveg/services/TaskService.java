@@ -17,9 +17,13 @@ import pl.projectfiveg.services.query.interfaces.IDeviceQueryService;
 import pl.projectfiveg.services.query.interfaces.ITaskQueryService;
 import pl.projectfiveg.services.update.interfaces.IDeviceUpdateService;
 import pl.projectfiveg.services.update.interfaces.ITaskUpdateService;
+import pl.projectfiveg.specification.criteria.TaskSearchCriteria;
 import pl.projectfiveg.validators.TaskValidator;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService implements ITaskService {
@@ -49,7 +53,7 @@ public class TaskService implements ITaskService {
         try {
             user = userService.getUserByLogin(principal.getName());
             device = deviceQueryService.getDeviceByUuid(job.getUuid());
-            taskValidator.validateTask(device , job, user);
+            taskValidator.validateTask(device , job , user);
         } catch ( Exception e ) {
             return new ResponseEntity(e.getMessage() , HttpStatus.BAD_REQUEST);
         }
@@ -57,6 +61,34 @@ public class TaskService implements ITaskService {
         Task task = taskUpdateService.createTask(job , device , user);
         deviceUpdateService.update(device);
         return new ResponseEntity <>(new TaskDTO(task , null) , HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity <List <TaskDTO>> getTasks(Principal principal , TaskSearchCriteria taskSearchCriteria) {
+        User user;
+        try {
+            user = userService.getUserByLogin(principal.getName());
+        } catch ( Exception e ) {
+            return new ResponseEntity(e.getMessage() , HttpStatus.BAD_REQUEST);
+        }
+        List <Task> tasks = taskQueryService.getTasks(taskSearchCriteria , user.getId());
+        return new ResponseEntity(tasks.stream().map(TaskDTO::new).collect(Collectors.toList()) , HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity <Set <TaskDTO>> getTasksToExecute(Principal principal , String deviceUuid) {
+        User user;
+        Device device;
+        try {
+            user = userService.getUserByLogin(principal.getName());
+            device = deviceQueryService.getDeviceByUuid(deviceUuid);
+            taskValidator.validateDeviceTask(device, user);
+        } catch ( Exception e ) {
+            return new ResponseEntity(e.getMessage() , HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity (taskQueryService.getTasksByDeviceUuid(deviceUuid), HttpStatus.OK);
     }
 
 }

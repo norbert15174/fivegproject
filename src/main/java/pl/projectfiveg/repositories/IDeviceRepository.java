@@ -10,7 +10,7 @@ import pl.projectfiveg.models.Device;
 import java.util.Optional;
 
 @Repository
-public interface IDeviceRepository extends JpaRepository<Device, String>, JpaSpecificationExecutor<Device> {
+public interface IDeviceRepository extends JpaRepository <Device, String>, JpaSpecificationExecutor <Device> {
     @Query("select d from Device d where d.uuid = :uuid")
-    Optional<Device> getByIdOpt(@Param("uuid") String uuid);
+    Optional <Device> getByIdOpt(@Param("uuid") String uuid);
 }

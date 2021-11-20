@@ -19,4 +19,13 @@ public class TaskValidator {
             throw new ValidationProjectException("You cannot order task as device");
         }
     }
+
+    public void validateDeviceTask(Device device , User user) {
+        if ( user.getDeviceType().equals(DeviceType.INVALID_TYPE) ) {
+            throw new ValidationProjectException("You cannot get this task as WEB_CLIENT");
+        }
+        if ( !device.getDeviceType().equals(user.getDeviceType()) ) {
+            throw new ValidationProjectException("If you want to get device '" + device.getUuid() + "' tasks, you have to log in as device user: " + device.getDeviceType());
+        }
+    }
 }
