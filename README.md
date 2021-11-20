@@ -1,3 +1,5 @@
-# fivegproject
-###### Setup project on local machine
-###### Contact with Norbert Faron or Mikołaj Telect to get needed files and keys
+# Distributed Network Traffic Generator 
+5G Networks course project - server
+
+To run and test this server you need to have application.properties file.
+Contact Norbert Faron or Mikołaj Telec to receive it (via Messenger or MS Teams).
