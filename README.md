@@ -23,4 +23,4 @@ Contact Norbert Faron or Mikołaj Telec to receive it (via Messenger or MS Teams
 ```
 - build project (all dependencies should be downloaded automaticlly, if it does not, use terminal (mvn clean -DskipTests)
 - comment the lines again
-- use documentation for proper integration with your system
+- use documentation for proper integration with your system (restapi-doc-notfinished.pdf)
