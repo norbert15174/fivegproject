@@ -1,9 +1,12 @@
 package pl.projectfiveg.validators;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pl.projectfiveg.DTO.RegisterDTO;
+import pl.projectfiveg.exceptions.UnAuthException;
 import pl.projectfiveg.exceptions.ValidationProjectException;
+import pl.projectfiveg.models.enums.DeviceType;
 import pl.projectfiveg.repositories.IUserRepository;
 
 @Component
@@ -26,4 +29,24 @@ public class AuthValidator {
         }
     }
 
+    public void validateLogin(PasswordEncoder passwordEncoder , String password , String encodedPassword , DeviceType deviceType) throws UnAuthException {
+        if ( !passwordEncoder.matches(password , encodedPassword) ) {
+            throw new UnAuthException("Invalid password");
+        }
+        if ( deviceType.equals(DeviceType.INVALID_TYPE) ) {
+            throw new UnAuthException("You cannot login to this account as device");
+        }
+    }
+
+    public void validateLogin(PasswordEncoder passwordEncoder , String password , String encodedPassword) throws UnAuthException {
+        if ( !passwordEncoder.matches(password , encodedPassword) ) {
+            throw new UnAuthException("Invalid password");
+        }
+    }
+
+    public void validateDeviceType(DeviceType userDeviceType , DeviceType deviceType) throws ValidationProjectException{
+        if(!userDeviceType.equals(deviceType)){
+            throw new ValidationProjectException("This account is not linked with given device uuid");
+        }
+    }
 }

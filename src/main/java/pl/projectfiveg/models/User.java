@@ -6,13 +6,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.projectfiveg.DTO.UserDTO;
+import pl.projectfiveg.models.enums.DeviceType;
 import pl.projectfiveg.models.enums.Role;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 @NoArgsConstructor
 @Setter
@@ -33,6 +32,8 @@ public class User implements UserDetails {
     private Role role;
     private boolean enabled = true;
     private Long salt;
+    @OneToMany(mappedBy = "user")
+    private Set <Task> tasks = new HashSet <>();
 
     public Long getId() {
         return this.id;
@@ -105,5 +106,18 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    public DeviceType getDeviceType() {
+        switch (this.role) {
+            case ROLE_IOS:
+                return DeviceType.IOS;
+            case ROLE_LINUX:
+                return DeviceType.LINUX;
+            case ROLE_ANDROID:
+                return DeviceType.ANDROID;
+            default:
+                return DeviceType.INVALID_TYPE;
+        }
     }
 }

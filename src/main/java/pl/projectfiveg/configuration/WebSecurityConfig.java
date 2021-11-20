@@ -32,6 +32,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().authorizeRequests()
                 .antMatchers("/client").authenticated()
+                .antMatchers("/device").hasAnyRole("WEB_CLIENT" , "ADMIN")
+                .antMatchers("/tasks").hasAnyRole("WEB_CLIENT" , "ADMIN")
                 .and()
                 .addFilterBefore(new JwtFilter(userService , tokenPrivateKey) , UsernamePasswordAuthenticationFilter.class);
         http.csrf().disable();
