@@ -1,16 +1,17 @@
 package pl.projectfiveg.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.MessageDeliveryException;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import pl.projectfiveg.models.ChatMessage;
 
-
+@Slf4j
 @Controller
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class WebSocketTextController {
@@ -27,4 +28,6 @@ public class WebSocketTextController {
     public ChatMessage get(@Payload ChatMessage chatMessage , @DestinationVariable String uuid) {
         return chatMessage;
     }
+
+
 }

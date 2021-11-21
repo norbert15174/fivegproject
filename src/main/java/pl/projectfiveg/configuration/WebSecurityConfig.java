@@ -3,9 +3,11 @@ package pl.projectfiveg.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.projectfiveg.services.interfaces.ITokenPrivateKey;
 import pl.projectfiveg.services.interfaces.IUserService;
@@ -44,7 +46,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/tasks").hasAnyRole("WEB_CLIENT" , "ADMIN")
                 .antMatchers("/tasks/{taskId}/download").hasAnyRole("WEB_CLIENT" , "ADMIN")
                 .and()
-                .addFilterBefore(new JwtFilter(userService , tokenPrivateKey) , UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(userService , tokenPrivateKey) , UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
         http.csrf().disable();
 
     }

@@ -16,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import pl.projectfiveg.exceptions.UnAuthException;
 import pl.projectfiveg.services.interfaces.ITokenPrivateKey;
 import pl.projectfiveg.services.interfaces.IUserService;
 
@@ -39,29 +38,24 @@ public class AuthChannelInterceptorAdapter implements ChannelInterceptor {
         if ( StompCommand.CONNECT == accessor.getCommand() ) {
             final String username = accessor.getFirstNativeHeader(TOKEN_HEADER);
 
-            final UsernamePasswordAuthenticationToken user;
-            try {
-                user = getUsernamePasswordAuthenticationToken(username);
-                accessor.setUser(user);
-            } catch ( UnAuthException e ) {
-                throw new AuthenticationCredentialsNotFoundException("Token is invalid");
-            }
+            final UsernamePasswordAuthenticationToken user = getUsernamePasswordAuthenticationToken(username);
+            accessor.setUser(user);
         }
         return message;
     }
 
-    private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String authorization) throws UnAuthException {
+    private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String authorization) {
         try {
             JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC512(tokenPrivateKey.getKey())).build();
             DecodedJWT verify = jwtVerifier.verify(authorization.substring(7));
             String username = verify.getClaim("login").asString();
             String salt = verify.getClaim("salt").asString();
             UserDetails userDetails = userService.accountVerifyToken(username , Long.parseLong(salt));
-            if ( userDetails == null ) throw new UnAuthException();
+            if ( userDetails == null ) throw new AuthenticationCredentialsNotFoundException("Invalid token");
 
             return new UsernamePasswordAuthenticationToken(userDetails , null , userDetails.getAuthorities());
         } catch ( Exception e ) {
-            throw new UnAuthException();
+            throw new AuthenticationCredentialsNotFoundException("Invalid token");
         }
     }
 }
