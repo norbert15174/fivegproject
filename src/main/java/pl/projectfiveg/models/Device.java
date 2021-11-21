@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.projectfiveg.DTO.TaskDTO;
 import pl.projectfiveg.models.enums.CurrentStatus;
 import pl.projectfiveg.models.enums.DeviceType;
 
@@ -35,4 +36,21 @@ public class Device {
     @OneToMany(mappedBy = "device")
     private Set <Task> tasks = new HashSet <>();
 
+    public boolean updateStatus(Set <TaskDTO> taskToExecute) {
+        this.connectionDate = LocalDateTime.now();
+        if ( this.status.equals(CurrentStatus.ACTIVE) && !taskToExecute.isEmpty() ) {
+            this.status = CurrentStatus.WORKING;
+            return true;
+        } else if ( this.status.equals(CurrentStatus.WORKING) && taskToExecute.isEmpty() ) {
+            this.status = CurrentStatus.ACTIVE;
+            return true;
+        } else if ( this.status.equals(CurrentStatus.INACTIVE) && !taskToExecute.isEmpty() ) {
+            this.status = CurrentStatus.WORKING;
+            return true;
+        } else if ( this.status.equals(CurrentStatus.INACTIVE) && taskToExecute.isEmpty() ) {
+            this.status = CurrentStatus.ACTIVE;
+            return true;
+        }
+        return false;
+    }
 }

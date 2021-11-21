@@ -32,4 +32,9 @@ public class File {
         this.data = file.getBytes();
         this.task = task;
     }
+
+    public User getTaskOrderedUser() {
+        return this.task.getUser();
+    }
+
 }

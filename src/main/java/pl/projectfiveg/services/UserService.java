@@ -19,13 +19,13 @@ import pl.projectfiveg.exceptions.UnAuthException;
 import pl.projectfiveg.exceptions.ValidationProjectException;
 import pl.projectfiveg.models.Device;
 import pl.projectfiveg.models.User;
-import pl.projectfiveg.models.enums.CurrentStatus;
 import pl.projectfiveg.models.enums.Role;
 import pl.projectfiveg.repositories.IUserRepository;
 import pl.projectfiveg.services.interfaces.ITokenPrivateKey;
 import pl.projectfiveg.services.interfaces.IUserService;
 import pl.projectfiveg.services.interfaces.IUserServiceInterface;
 import pl.projectfiveg.services.query.interfaces.IDeviceQueryService;
+import pl.projectfiveg.services.query.interfaces.ITaskQueryService;
 import pl.projectfiveg.services.update.interfaces.IDeviceUpdateService;
 import pl.projectfiveg.validators.AuthValidator;
 
@@ -39,6 +39,7 @@ public class UserService implements IUserService, UserDetailsService, ITokenPriv
     private final AuthValidator authValidator;
     private final IDeviceQueryService deviceQueryService;
     private final IDeviceUpdateService deviceUpdateService;
+    private final ITaskQueryService taskQueryService;
     private final PasswordEncoder passwordEncoder;
     @Value("${Algorithm-key}")
     private String applicationKey;
@@ -46,11 +47,12 @@ public class UserService implements IUserService, UserDetailsService, ITokenPriv
     private final Long MIN_SALT = 1000000L;
 
     @Autowired
-    public UserService(IUserRepository userRepository , AuthValidator authValidator , IDeviceQueryService deviceQueryService , IDeviceUpdateService deviceUpdateService , PasswordEncoder passwordEncoder) {
+    public UserService(IUserRepository userRepository , AuthValidator authValidator , IDeviceQueryService deviceQueryService , IDeviceUpdateService deviceUpdateService , ITaskQueryService taskQueryService , PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.authValidator = authValidator;
         this.deviceQueryService = deviceQueryService;
         this.deviceUpdateService = deviceUpdateService;
+        this.taskQueryService = taskQueryService;
         this.passwordEncoder = passwordEncoder;
 //        Set <User> users = Set.of(
 //                new User("linux" , passwordEncoder.encode("linuxlinux") , Role.ROLE_LINUX , generateSalt()) ,
@@ -131,8 +133,8 @@ public class UserService implements IUserService, UserDetailsService, ITokenPriv
             } catch ( DeviceNotFoundException | ValidationProjectException ex ) {
                 return new ResponseEntity(ex.getMessage() , HttpStatus.BAD_REQUEST);
             }
-            device.setConnectionDate(LocalDateTime.now());
-            device.setStatus(CurrentStatus.ACTIVE);
+            Set <TaskDTO> tasks = taskQueryService.getTasksByDeviceUuid(login.getUuid());
+            device.updateStatus(tasks);
             deviceUpdateService.update(device);
             return new ResponseEntity(new DeviceAuthDTO(generateJwt(user.getUsername() , user.getSalt()) , device.getUuid()) , HttpStatus.OK);
         }

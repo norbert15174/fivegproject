@@ -34,9 +34,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/client").authenticated()
                 .antMatchers("/device").hasAnyRole("WEB_CLIENT" , "ADMIN")
                 .antMatchers("/device/tasks").hasAnyRole("LINUX" , "IOS" , "ANDROID" , "ADMIN")
+                .antMatchers("/device/active").hasAnyRole("LINUX" , "IOS" , "ANDROID" , "ADMIN")
+                .antMatchers("/device/disconnect").hasAnyRole("LINUX" , "IOS" , "ANDROID" , "ADMIN")
                 .antMatchers("/device/tasks/{taskId}/upload").hasAnyRole("LINUX" , "IOS" , "ANDROID" , "ADMIN")
                 .antMatchers("/tasks").hasAnyRole("WEB_CLIENT" , "ADMIN")
                 .antMatchers("/tasks/{taskId}/download").hasAnyRole("WEB_CLIENT" , "ADMIN")
+                .antMatchers("/devicews").authenticated()
+                .antMatchers("/devicews/**").authenticated()
+                .antMatchers("/topic").authenticated()
+                .antMatchers("/topic/**").authenticated()
                 .and()
                 .addFilterBefore(new JwtFilter(userService , tokenPrivateKey) , UsernamePasswordAuthenticationFilter.class);
         http.csrf().disable();

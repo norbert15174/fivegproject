@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import pl.projectfiveg.DTO.OrderJobDTO;
 import pl.projectfiveg.exceptions.ValidationProjectException;
 import pl.projectfiveg.models.Device;
+import pl.projectfiveg.models.File;
 import pl.projectfiveg.models.Task;
 import pl.projectfiveg.models.User;
 import pl.projectfiveg.models.enums.CurrentStatus;
@@ -40,6 +41,12 @@ public class TaskValidator {
         }
         if ( !task.getDevice().getUuid().equals(device.getUuid()) ) {
             throw new ValidationProjectException("This task is not linked to given UUID device");
+        }
+    }
+
+    public void validateDownload(File file , User user) {
+        if(!file.getTaskOrderedUser().equals(user)){
+            throw new ValidationProjectException("You cannot download this file because you are not a task owner");
         }
     }
 }

@@ -33,6 +33,16 @@ public class DeviceController {
         return deviceService.getDevices(deviceSearchCriteria);
     }
 
+    @PostMapping("/active")
+    public ResponseEntity <DeviceDTO> stillConnected(Principal principal , @RequestHeader(name = "device-uuid") String uuid) {
+        return deviceService.deviceStillConnected(principal , uuid);
+    }
+
+    @PostMapping("/disconnect")
+    public ResponseEntity <DeviceDTO> disconnect(Principal principal , @RequestHeader(name = "device-uuid") String uuid) {
+        return deviceService.deviceDisconnect(principal , uuid);
+    }
+
     @GetMapping("/tasks")
     public ResponseEntity <Set <TaskDTO>> getTasks(Principal principal , @RequestHeader(name = "device-uuid") String uuid) {
         return taskService.getTasksToExecute(principal , uuid);
@@ -40,10 +50,11 @@ public class DeviceController {
 
     @PostMapping("/tasks/{taskId}/upload")
     public ResponseEntity <TaskDTO> upload(Principal principal ,
-                                             @RequestHeader(name = "device-uuid") String uuid ,
-                                             @PathVariable("taskId") Long taskId ,
-                                             MultipartFile file) {
+                                           @RequestHeader(name = "device-uuid") String uuid ,
+                                           @PathVariable("taskId") Long taskId ,
+                                           MultipartFile file) {
         return taskService.uploadFile(principal , uuid , taskId , file);
     }
+
 
 }

@@ -124,9 +124,12 @@ public class TaskService implements ITaskService {
 
     @Override
     public ResponseEntity <Resource> getFile(Principal principal , Long taskId) {
+        User user;
         File file;
         try {
             file = taskQueryService.getFileByTaskId(taskId);
+            user = userService.getUserByLogin(principal.getName());
+            taskValidator.validateDownload(file , user);
         } catch ( FileNotFoundException ex ) {
             return new ResponseEntity(ex.getMessage() , HttpStatus.BAD_REQUEST);
         }

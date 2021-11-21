@@ -10,6 +10,7 @@ import pl.projectfiveg.services.query.interfaces.IDeviceQueryService;
 import pl.projectfiveg.specification.DeviceClassSpecification;
 import pl.projectfiveg.specification.criteria.DeviceSearchCriteria;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,5 +38,11 @@ public class DeviceQueryService implements IDeviceQueryService {
     public List <Device> getDevices(DeviceSearchCriteria deviceSearchCriteria) {
         Specification<Device> filter = new DeviceClassSpecification().getFilter(deviceSearchCriteria);
         return deviceRepository.findAll(filter);
+    }
+
+    @Override
+    public List <Device> getDevicesStatusChange() {
+        LocalDateTime time = LocalDateTime.now().minusMinutes(10);
+        return deviceRepository.findDevicesStatusChange(time);
     }
 }

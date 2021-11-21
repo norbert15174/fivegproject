@@ -13,4 +13,6 @@ public interface IDeviceQueryService {
     Optional <Device> getDeviceByUuidOpt(String uuid);
 
     List <Device> getDevices(DeviceSearchCriteria deviceSearchCriteria);
+
+    List <Device> getDevicesStatusChange();
 }
