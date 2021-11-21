@@ -25,7 +25,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .antMatchers(HttpMethod.POST , "/auth/**");
+                .antMatchers(HttpMethod.POST , "/auth/**")
+                .antMatchers("/topic")
+                .antMatchers("/topic/**")
+                .antMatchers("/devicews")
+                .antMatchers("/devicews/**");
     }
 
     @Override
@@ -39,14 +43,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/device/tasks/{taskId}/upload").hasAnyRole("LINUX" , "IOS" , "ANDROID" , "ADMIN")
                 .antMatchers("/tasks").hasAnyRole("WEB_CLIENT" , "ADMIN")
                 .antMatchers("/tasks/{taskId}/download").hasAnyRole("WEB_CLIENT" , "ADMIN")
-                .antMatchers("/devicews").authenticated()
-                .antMatchers("/devicews/**").authenticated()
-                .antMatchers("/topic").authenticated()
-                .antMatchers("/topic/**").authenticated()
                 .and()
                 .addFilterBefore(new JwtFilter(userService , tokenPrivateKey) , UsernamePasswordAuthenticationFilter.class);
         http.csrf().disable();
 
     }
+
 
 }
