@@ -65,4 +65,9 @@ public class TaskQueryService implements ITaskQueryService {
     public File getFileByTaskId(Long taskId) {
         return fileRepository.findFileByTaskId(taskId).orElseThrow(() -> new TaskNotFoundException("File does not exist"));
     }
+
+    @Override
+    public Set <Task> getNotFinishedTasksByDeviceUuid(String uuid) {
+        return taskRepository.getNotFinishedTasksByDeviceUuid(uuid);
+    }
 }

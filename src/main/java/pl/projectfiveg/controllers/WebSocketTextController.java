@@ -2,14 +2,16 @@ package pl.projectfiveg.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.MessageDeliveryException;
-import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import pl.projectfiveg.models.DeviceStatusMessage;
 import pl.projectfiveg.models.ChatMessage;
+import pl.projectfiveg.models.UserMessage;
 
 @Slf4j
 @Controller
@@ -23,10 +25,22 @@ public class WebSocketTextController {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
-    @MessageMapping("/devicews/{id}")
-    @SendTo("/topic/{id}")
+    @MessageMapping("/devicews/{uuid}")
+    @SendTo("/topic/{uuid}")
     public ChatMessage get(@Payload ChatMessage chatMessage , @DestinationVariable String uuid) {
         return chatMessage;
+    }
+
+    @MessageMapping("/userws/{user_uuid}")
+    @SendTo("/topic/{user_uuid}")
+    public UserMessage user(@Payload UserMessage chatMessage , @DestinationVariable String user_uuid) {
+        return chatMessage;
+    }
+
+    @MessageMapping("/devicews/global")
+    @SendTo("/topic/global")
+    public DeviceStatusMessage user(@Payload DeviceStatusMessage message) {
+        return message;
     }
 
 

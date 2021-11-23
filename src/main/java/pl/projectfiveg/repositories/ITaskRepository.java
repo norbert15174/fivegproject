@@ -18,4 +18,6 @@ public interface ITaskRepository extends JpaRepository <Task, Long>, JpaSpecific
     @Query("select t from Task t inner join t.device d where d.uuid = :deviceUuId and t.status <> pl.projectfiveg.models.enums.TaskStatus.FINISHED")
     Set <Task> findFullTasksByDeviceUuid(@Param("deviceUuId") String deviceUuId);
 
+    @Query("select t from Task t inner join t.device d where d.uuid = :uuid and t.status <> pl.projectfiveg.models.enums.TaskStatus.FINISHED")
+    Set<Task> getNotFinishedTasksByDeviceUuid(String uuid);
 }

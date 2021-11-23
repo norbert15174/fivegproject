@@ -29,7 +29,6 @@ import pl.projectfiveg.services.query.interfaces.ITaskQueryService;
 import pl.projectfiveg.services.update.interfaces.IDeviceUpdateService;
 import pl.projectfiveg.validators.AuthValidator;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
@@ -41,24 +40,23 @@ public class UserService implements IUserService, UserDetailsService, ITokenPriv
     private final IDeviceUpdateService deviceUpdateService;
     private final ITaskQueryService taskQueryService;
     private final PasswordEncoder passwordEncoder;
+    private final WebSocketClientService webSocketClientService;
     @Value("${Algorithm-key}")
     private String applicationKey;
+    @Value("${Admin-salt}")
+    private Long ADMIN_SALT;
     private final Long MAX_SALT = 4000000L;
     private final Long MIN_SALT = 1000000L;
 
     @Autowired
-    public UserService(IUserRepository userRepository , AuthValidator authValidator , IDeviceQueryService deviceQueryService , IDeviceUpdateService deviceUpdateService , ITaskQueryService taskQueryService , PasswordEncoder passwordEncoder) {
+    public UserService(IUserRepository userRepository , AuthValidator authValidator , IDeviceQueryService deviceQueryService , IDeviceUpdateService deviceUpdateService , ITaskQueryService taskQueryService , PasswordEncoder passwordEncoder , WebSocketClientService webSocketClientService) {
         this.userRepository = userRepository;
         this.authValidator = authValidator;
         this.deviceQueryService = deviceQueryService;
         this.deviceUpdateService = deviceUpdateService;
         this.taskQueryService = taskQueryService;
         this.passwordEncoder = passwordEncoder;
-//        Set <User> users = Set.of(
-//                new User("linux" , passwordEncoder.encode("linuxlinux") , Role.ROLE_LINUX , generateSalt()) ,
-//                new User("ios" , passwordEncoder.encode("iosios") , Role.ROLE_IOS , generateSalt()) ,
-//                new User("android" , passwordEncoder.encode("androidandroid") , Role.ROLE_ANDROID , generateSalt()));
-//        userRepository.saveAll(users);
+        this.webSocketClientService = webSocketClientService;
     }
 
     @Override
@@ -105,10 +103,14 @@ public class UserService implements IUserService, UserDetailsService, ITokenPriv
         } catch ( UnAuthException ex ) {
             return new ResponseEntity(ex.getMessage() , HttpStatus.BAD_REQUEST);
         }
-        user.setSalt(generateSalt());
-        User updated = userRepository.save(user);
-        String token = generateJwt(updated.getUsername() , updated.getSalt());
-        return new ResponseEntity <>(updated.toUserDTO(token) , HttpStatus.OK);
+        if ( !user.isAdmin() ) {
+            user.setSalt(generateSalt());
+            User updated = userRepository.save(user);
+            String token = generateJwt(updated.getUsername() , updated.getSalt());
+            return new ResponseEntity <>(updated.toUserDTO(token) , HttpStatus.OK);
+        }
+        String token = generateJwt(user.getUsername() , user.getSalt());
+        return new ResponseEntity <>(user.toUserDTO(token) , HttpStatus.OK);
     }
 
     @Override
@@ -142,12 +144,27 @@ public class UserService implements IUserService, UserDetailsService, ITokenPriv
             return new ResponseEntity("Device name is required" , HttpStatus.BAD_REQUEST);
         }
         Device device = deviceUpdateService.createDevice(user.getDeviceType() , login.getName());
+        try {
+            webSocketClientService.webSocketGlobal(device.toDeviceStatusMessage());
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
         return new ResponseEntity(new DeviceAuthDTO(generateJwt(user.getUsername() , user.getSalt()) , device.getUuid()) , HttpStatus.OK);
     }
 
     @Override
     public User getUserByLogin(String login) throws UsernameNotFoundException {
         return userRepository.findByLoginOpt(login).orElseThrow(() -> new UsernameNotFoundException("User doesnt exist in system"));
+    }
+
+    //@EventListener(ApplicationReadyEvent.class)
+    public void injectAccounts() {
+        Set <User> users = Set.of(
+                new User("linux" , passwordEncoder.encode("linuxlinux") , Role.ROLE_LINUX , generateSalt()) ,
+                new User("ios" , passwordEncoder.encode("iosios") , Role.ROLE_IOS , generateSalt()) ,
+                new User("android" , passwordEncoder.encode("androidandroid") , Role.ROLE_ANDROID , generateSalt()) ,
+                new User("serveradmin" , passwordEncoder.encode("S$Ad&m@ldk51") , Role.ROLE_ADMIN , ADMIN_SALT));
+        userRepository.saveAll(users);
     }
 
 

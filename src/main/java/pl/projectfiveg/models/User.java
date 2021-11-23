@@ -120,4 +120,8 @@ public class User implements UserDetails {
                 return DeviceType.INVALID_TYPE;
         }
     }
+
+    public boolean isAdmin() {
+        return this.role.equals(Role.ROLE_ADMIN);
+    }
 }

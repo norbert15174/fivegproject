@@ -7,4 +7,6 @@ public interface IDeviceUpdateService {
     void update(Device device);
 
     Device createDevice(DeviceType deviceType , String name);
+
+    void updateStatusIfNeeded(String uuid);
 }

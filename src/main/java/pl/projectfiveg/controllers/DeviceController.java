@@ -53,7 +53,11 @@ public class DeviceController {
                                            @RequestHeader(name = "device-uuid") String uuid ,
                                            @PathVariable("taskId") Long taskId ,
                                            MultipartFile file) {
-        return taskService.uploadFile(principal , uuid , taskId , file);
+        ResponseEntity <TaskDTO> task = taskService.uploadFile(principal , uuid , taskId , file);
+        if ( task.getStatusCode().is2xxSuccessful() ) {
+            deviceService.updateStatusIfNeeded(uuid);
+        }
+        return task;
     }
 
 

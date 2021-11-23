@@ -53,4 +53,8 @@ public class Device {
         }
         return false;
     }
+
+    public DeviceStatusMessage toDeviceStatusMessage() {
+        return new DeviceStatusMessage(this);
+    }
 }

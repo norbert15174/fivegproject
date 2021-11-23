@@ -16,4 +16,6 @@ public interface ITaskQueryService {
     Task getTaskById(Long taskId);
 
     File getFileByTaskId(Long taskId);
+
+    Set<Task> getNotFinishedTasksByDeviceUuid(String uuid);
 }

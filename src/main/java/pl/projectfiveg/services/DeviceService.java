@@ -30,13 +30,15 @@ public class DeviceService implements IDeviceService {
     private final IUserService userService;
     private final DeviceValidator deviceValidator;
     private final ITaskQueryService taskQueryService;
+    private final WebSocketClientService webSocketClientService;
 
-    public DeviceService(IDeviceQueryService deviceQueryService , IDeviceUpdateService deviceUpdateService , IUserService userService , DeviceValidator deviceValidator , ITaskQueryService taskQueryService) {
+    public DeviceService(IDeviceQueryService deviceQueryService , IDeviceUpdateService deviceUpdateService , IUserService userService , DeviceValidator deviceValidator , ITaskQueryService taskQueryService , WebSocketClientService webSocketClientService) {
         this.deviceQueryService = deviceQueryService;
         this.deviceUpdateService = deviceUpdateService;
         this.userService = userService;
         this.deviceValidator = deviceValidator;
         this.taskQueryService = taskQueryService;
+        this.webSocketClientService = webSocketClientService;
     }
 
     @Transactional(readOnly = true)
@@ -60,6 +62,7 @@ public class DeviceService implements IDeviceService {
         }
         device.updateStatus(tasks);
         deviceUpdateService.update(device);
+        updateStatusIfNeeded(uuid);
         return new ResponseEntity(new DeviceDTO(device) , HttpStatus.OK);
     }
 
@@ -76,6 +79,11 @@ public class DeviceService implements IDeviceService {
         }
         device.setStatus(CurrentStatus.INACTIVE);
         deviceUpdateService.update(device);
+        try {
+            webSocketClientService.webSocketGlobal(device.toDeviceStatusMessage());
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
         return new ResponseEntity(new DeviceDTO(device) , HttpStatus.OK);
     }
 
@@ -84,6 +92,16 @@ public class DeviceService implements IDeviceService {
     public void updateDevicesStatus(Device device) {
         device.setStatus(CurrentStatus.INACTIVE);
         deviceUpdateService.update(device);
+        try {
+            webSocketClientService.webSocketGlobal(device.toDeviceStatusMessage());
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateStatusIfNeeded(String uuid) {
+        deviceUpdateService.updateStatusIfNeeded(uuid);
     }
 
 }

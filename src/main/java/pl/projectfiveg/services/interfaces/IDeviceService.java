@@ -7,6 +7,7 @@ import pl.projectfiveg.specification.criteria.DeviceSearchCriteria;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface IDeviceService {
     ResponseEntity<List<DeviceDTO>> getDevices(DeviceSearchCriteria deviceSearchCriteria);
@@ -16,4 +17,6 @@ public interface IDeviceService {
     ResponseEntity <DeviceDTO> deviceDisconnect(Principal principal , String uuid);
 
     void updateDevicesStatus(Device device);
+
+    void updateStatusIfNeeded(String uuid);
 }

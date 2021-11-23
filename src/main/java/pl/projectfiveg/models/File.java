@@ -22,6 +22,7 @@ public class File {
     private String name;
     private String type;
     @Lob
+    @Column(length = 20971520)
     private byte[] data;
     @OneToOne
     private Task task;

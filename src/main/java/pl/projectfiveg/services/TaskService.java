@@ -13,10 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pl.projectfiveg.DTO.OrderJobDTO;
 import pl.projectfiveg.DTO.TaskDTO;
 import pl.projectfiveg.exceptions.FileNotFoundException;
-import pl.projectfiveg.models.Device;
-import pl.projectfiveg.models.File;
-import pl.projectfiveg.models.Task;
-import pl.projectfiveg.models.User;
+import pl.projectfiveg.models.*;
 import pl.projectfiveg.models.enums.CurrentStatus;
 import pl.projectfiveg.models.enums.TaskStatus;
 import pl.projectfiveg.services.interfaces.ITaskService;
@@ -43,15 +40,17 @@ public class TaskService implements ITaskService {
     private final IUserService userService;
     private final IDeviceQueryService deviceQueryService;
     private final TaskValidator taskValidator;
+    private final WebSocketClientService webSocketClientService;
 
     @Autowired
-    public TaskService(ITaskUpdateService taskUpdateService , ITaskQueryService taskQueryService , IDeviceUpdateService deviceUpdateService , IUserService userService , IDeviceQueryService deviceQueryService , TaskValidator taskValidator) {
+    public TaskService(ITaskUpdateService taskUpdateService , ITaskQueryService taskQueryService , IDeviceUpdateService deviceUpdateService , IUserService userService , IDeviceQueryService deviceQueryService , TaskValidator taskValidator , WebSocketClientService webSocketClientService) {
         this.taskUpdateService = taskUpdateService;
         this.taskQueryService = taskQueryService;
         this.deviceUpdateService = deviceUpdateService;
         this.userService = userService;
         this.deviceQueryService = deviceQueryService;
         this.taskValidator = taskValidator;
+        this.webSocketClientService = webSocketClientService;
     }
 
     @Transactional
@@ -59,16 +58,19 @@ public class TaskService implements ITaskService {
     public ResponseEntity <TaskDTO> create(Principal principal , OrderJobDTO job) {
         User user;
         Device device;
+        Task task;
         try {
             user = userService.getUserByLogin(principal.getName());
             device = deviceQueryService.getDeviceByUuid(job.getUuid());
             taskValidator.validateTask(device , job , user);
+            device.setStatus(CurrentStatus.WORKING);
+            webSocketClientService.webSocketGlobal(device.toDeviceStatusMessage());
+            task = taskUpdateService.createTask(job , device , user);
+            deviceUpdateService.update(device);
+            webSocketClientService.webSocketDevice(new ChatMessage(task.getId() , task.getTaskType()) , device.getUuid());
         } catch ( Exception e ) {
             return new ResponseEntity(e.getMessage() , HttpStatus.BAD_REQUEST);
         }
-        device.setStatus(CurrentStatus.WORKING);
-        Task task = taskUpdateService.createTask(job , device , user);
-        deviceUpdateService.update(device);
         return new ResponseEntity <>(new TaskDTO(task , null) , HttpStatus.OK);
     }
 
@@ -113,13 +115,21 @@ public class TaskService implements ITaskService {
             task = taskQueryService.getTaskById(taskId);
             taskValidator.validateUploadFile(user , device , task);
             fileToSave = new File(file , task);
+
         } catch ( Exception e ) {
             return new ResponseEntity(e.getMessage() , HttpStatus.BAD_REQUEST);
         }
         task.setFile(fileToSave);
         task.setOrderEnd(LocalDateTime.now());
         task.setStatus(TaskStatus.FINISHED);
-        return new ResponseEntity(new TaskDTO(taskUpdateService.update(task)) , HttpStatus.OK);
+        TaskDTO updated = new TaskDTO(taskUpdateService.update(task));
+        deviceUpdateService.updateStatusIfNeeded(uuid);
+        try {
+            webSocketClientService.webSocketUser(new UserMessage(taskId , task.getTaskType()) , task.getUser().getId());
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity(updated , HttpStatus.OK);
     }
 
     @Override
