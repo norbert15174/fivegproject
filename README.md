@@ -13,8 +13,9 @@ Contact Norbert Faron or Mikołaj Telec to receive it (via Messenger or MS Teams
 ```
 #spring.jpa.hibernate.ddl-auto=create
 ```
-- uncomment in userService (ctrl + n) -> (search userService) -> (uncomment the lines below in the constructor)
+- uncomment in userService (ctrl + n) -> (search userService) -> (uncomment the line with @EventListener(ApplicationReadyEventStart.class)
 ```
+Method should include
 //        Set <User> users = Set.of(
 //                new User("linux" , passwordEncoder.encode("linuxlinux") , Role.ROLE_LINUX , generateSalt()) ,
 //                new User("ios" , passwordEncoder.encode("iosios") , Role.ROLE_IOS , generateSalt()) ,
