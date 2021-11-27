@@ -9,6 +9,7 @@ import pl.projectfiveg.models.enums.Role;
 @Getter
 @Setter
 public class UserDTO {
+    private Long id;
     private String login;
     private String role;
     private String token;

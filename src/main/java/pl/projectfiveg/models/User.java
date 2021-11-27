@@ -57,7 +57,7 @@ public class User implements UserDetails {
     }
 
     public UserDTO toUserDTO(String token) {
-        return new UserDTO(this.login , this.role.getAuthority() , token);
+        return new UserDTO(this.id , this.login , this.role.getAuthority() , token);
     }
 
     @Override
