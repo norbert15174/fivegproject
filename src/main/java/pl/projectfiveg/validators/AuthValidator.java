@@ -34,7 +34,7 @@ public class AuthValidator {
             throw new UnAuthException("Invalid password");
         }
         if ( deviceType.equals(DeviceType.INVALID_TYPE) ) {
-            throw new UnAuthException("You cannot login to this account as device");
+            throw new UnAuthException("You cannot login to this account as client");
         }
     }
 

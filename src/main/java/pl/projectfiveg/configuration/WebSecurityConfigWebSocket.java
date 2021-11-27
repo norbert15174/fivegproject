@@ -10,12 +10,12 @@ public class WebSecurityConfigWebSocket extends AbstractSecurityWebSocketMessage
 
     @Override
     protected void configureInbound(final MessageSecurityMetadataSourceRegistry messages) {
-//        messages.simpTypeMatchers(SimpMessageType.CONNECT , SimpMessageType.DISCONNECT , SimpMessageType.OTHER)
-//                .permitAll()
-//                .anyMessage()
-//                .authenticated();
+        messages.simpTypeMatchers(SimpMessageType.CONNECT , SimpMessageType.DISCONNECT , SimpMessageType.OTHER)
+                .permitAll()
+                .anyMessage()
+                .authenticated();
 
-        messages.anyMessage().authenticated();
+//        messages.anyMessage().authenticated();
     }
 
     @Override
