@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class DeviceAuthDTO {
-    private final String token;
-    private final String uuid;
+    private String token;
+    private String uuid;
 }

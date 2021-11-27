@@ -10,9 +10,9 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class DeviceLoginDTO {
     @NotNull
-    private final String login;
+    private String login;
     @NotNull
-    private final String password;
-    private final String uuid;
-    private final String name;
+    private String password;
+    private String uuid;
+    private String name;
 }

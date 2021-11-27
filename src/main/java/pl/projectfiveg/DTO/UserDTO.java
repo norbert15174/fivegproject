@@ -7,7 +7,7 @@ import pl.projectfiveg.models.enums.Role;
 @AllArgsConstructor
 @Getter
 public class UserDTO {
-    private final String login;
-    private final String role;
-    private final String token;
+    private String login;
+    private String role;
+    private String token;
 }
