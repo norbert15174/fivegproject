@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  mysql_db:
+    image: mysql:8.0.27
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+    ports:
+      - "3306:3306"
+  adminer_container:
+    image: adminer:4.8.1
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql_db
+    ports:
+      - 8080:8080

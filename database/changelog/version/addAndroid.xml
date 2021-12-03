@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<databaseChangeLog  
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"  
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+  xmlns:pro="http://www.liquibase.org/xml/ns/pro"  
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd
+      http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.5.xsd">  
+    <changeSet id="7" author="xyz">
+        <insert tableName="user">
+            <column name="enabled" valueBoolean="true" type="BIT(1)"/>
+            <column name="login" value="android"  type="varchar(255)"/>
+            <column name="password" value="$2a$10$ieiN9bkyj9WUok7yq0dQb.Z3nopqWcld2v7rxw5DBRCvp52EbYuHe" type="varchar(255)"/>
+            <column name="role" value="ROLE_ANDROID" type="varchar(255)"/>
+            <column name="salt" value="3363701" type="bigint"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
