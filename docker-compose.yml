@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  mysql_db:
+    image: mysql:8.0.27
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: projectfiveg
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+  adminer_container:
+    image: adminer:4.8.1
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql_db
+    ports:
+      - "8080:8080"
+  server:
+    depends_on:
+      - mysql_db
+    image: projectfiveg:latest
+    build: .
+    ports:
+      - "8010:8010"
+    command:
+      "mvn exec:java -Dexec.mainClass=pl.projectfiveg.Application \
+      -Dapplication-url=http://0.0.0.0:8010 \
+      -Dapplication-url-ws=ws://0.0.0.0:8010 \
+      -Dspring.datasource.url=jdbc:mysql://mysql_db:3306/projectfiveg?serverTimezone=UTC \
+      -Dspring.datasource.username=root \
+      -Dspring.datasource.password=root \
+      -Dspring.jpa.hibernate.ddl-auto=update"
+
+volumes:
+  mysql_data:
