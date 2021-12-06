@@ -25,3 +25,26 @@ Method should include
 - build project (all dependencies should be downloaded automaticlly, if it does not, use terminal (mvn clean -DskipTests)
 - comment the lines again
 - use documentation for proper integration with your system (restapi-doc-notfinished.pdf)
+
+
+#### Docker setup
+
+To build and start the service in a docker container simply run:
+
+```sh
+docker-compose build
+docker-compose up -d
+```
+
+Run `docker-compose down` to stop and remove containers.
+MySQL data will be preserved in a persistent volume.
+
+In order to populate empty database do:
+
+```sh
+# assuming service and database containters are running
+docker-compose stop server
+docker-compose run --rm server ./populate.sh
+# wait one minute
+docker-compose start server
+```
